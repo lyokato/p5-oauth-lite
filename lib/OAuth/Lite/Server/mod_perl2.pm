@@ -957,7 +957,7 @@ sub is_reverse_phone_home {
     my $self = shift;
     return ( $self->is_required_protected_resource
         && $self->accepts_reverse_phone_home
-        && !exists $self->{param}{oauth_token}
+        && !exists $self->{params}{oauth_token}
         && exists $self->{params}{xoauth_requestor_id}) ? 1 : 0
 }
 
