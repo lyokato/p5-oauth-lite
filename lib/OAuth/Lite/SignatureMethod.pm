@@ -36,6 +36,21 @@ Create subclasses for arbitrary signature method inheriting this class.
 
 =head1 METHODS
 
+=head2 build_body_hash($content)
+
+Build body hash according to the spec
+http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/drafts/4/spec.html
+
+    my $hash = $method_class->build_body_hash($content);
+    say $hash;
+
+=cut
+
+sub build_body_hash {
+    my ( $class, $content ) = @_;
+    return;
+}
+
 =head2 method_name($method_name)
 
 Set signature method name.

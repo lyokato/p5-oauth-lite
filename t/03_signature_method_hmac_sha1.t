@@ -1,8 +1,9 @@
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 use OAuth::Lite::SignatureMethod::HMAC_SHA1;
 
 is(OAuth::Lite::SignatureMethod::HMAC_SHA1->method_name, 'HMAC-SHA1');
+is(OAuth::Lite::SignatureMethod::HMAC_SHA1->build_body_hash(qq{Hello World!}), q{Lve95gjOVATpfV8EL5X4nxwjKHE=});
 
 my $base = "hogehogehoge";
 

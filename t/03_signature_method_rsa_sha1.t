@@ -1,8 +1,9 @@
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use OAuth::Lite::SignatureMethod::RSA_SHA1;
 
 is(OAuth::Lite::SignatureMethod::RSA_SHA1->method_name, 'RSA-SHA1');
+is(OAuth::Lite::SignatureMethod::RSA_SHA1->build_body_hash(qq{Hello World!}), q{Lve95gjOVATpfV8EL5X4nxwjKHE=});
 
 my $public_key = <<__END_OF_PUBLIC__;
 -----BEGIN RSA PUBLIC KEY-----

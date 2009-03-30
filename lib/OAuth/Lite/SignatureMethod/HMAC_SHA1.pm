@@ -46,6 +46,19 @@ Class method. Returns this method's name.
     say OAuth::Lite::SignatureMethod::HMAC_SHA1->method_name;
     # HMAC_SHA1
 
+=head2 build_body_hash
+
+    say OAuth::Lite::SignatureMethod::HMAC_SHA1->build_body_hash($content);
+
+=cut
+
+sub build_body_hash {
+    my ( $class, $content ) = @_;
+    my $hash = MIME::Base64::encode_base64(Digest::SHA::sha1($content));
+    $hash =~ s/\n//g;
+    return $hash;
+}
+
 =head2 new(%params)
 
 =head3 parameters

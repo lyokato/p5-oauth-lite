@@ -281,6 +281,8 @@ sub _init {
     $self->{callback_url} = $args{callback_url};
     $self->{oauth_request} = undef;
     $self->{oauth_response} = undef;
+    $self->{_nonce} = $args{_nonce};
+    $self->{_timestamp} = $args{_timestamp};
 }
 
 =head2 request_token_url
@@ -515,36 +517,52 @@ sub gen_oauth_request {
     my @send_data_methods = qw/POST PUT/;
     my @non_send_data_methods = qw/GET HEAD DELETE/;
 
+    my $is_send_data_method = any { $method eq $_ } @send_data_methods;
+
     my $auth_method = $self->{auth_method};
-    if (any { $method eq $_ } @non_send_data_methods) {
-        $auth_method = AUTH_HEADER
-            unless $auth_method eq URL_QUERY; 
-    } else { # POST or PUT
-        $auth_method = AUTH_HEADER
-            unless $auth_method eq POST_BODY; 
-    }
+    $auth_method = AUTH_HEADER
+        if ( !$is_send_data_method && $auth_method eq POST_BODY );
 
     if ($auth_method eq URL_QUERY) {
-        my $query = $self->gen_auth_query($method, $url, $token, $extra);
-        $url = sprintf q{%s?%s}, $url, $query;
+        if ( $is_send_data_method && !$content ) {
+            Carp::croak
+                qq(You must set content-body in case you use combination of URL_QUERY and POST/PUT http method);
+        } else {
+            if ( $is_send_data_method ) {
+                if ( my $hash = $self->build_body_hash($content) ) {
+                    $extra->{oauth_body_hash} = $hash;
+                }
+            }
+            my $query = $self->gen_auth_query($method, $url, $token, $extra);
+            $url = sprintf q{%s?%s}, $url, $query;
+        }
     } elsif ($auth_method eq POST_BODY) {
         my $query = $self->gen_auth_query($method, $url, $token, $extra);
         $content = $query;
+        $headers->header('Content-Type', q{application/x-www-form-urlencoded});
     } else {
-        my $header = $self->gen_auth_header($method, $url,
-            { realm => $realm, token => $token, extra => $extra });
-        $headers->header( Authorization => $header );
-        if (keys %$extra > 0) {
+        my $origin_url = $url;
+        warn "auth header";
+        if ( keys %$extra > 0 ) {
             my $data = normalize_params($extra);
-            #my $data = join('&', @extra_pairs);
-            if (any { $method eq $_ } @send_data_methods) {
+            if ( $is_send_data_method && !$content ) {
                 $content = $data;
             } else {
                 $url = sprintf q{%s?%s}, $url, $data;
             }
         }
+        if ( $is_send_data_method ) {
+            warn "is_send";
+            if ( my $hash = $self->build_body_hash($content) ) {
+                warn "hash";
+                $extra->{oauth_body_hash} = $hash;
+            }
+        }
+        my $header = $self->gen_auth_header($method, $origin_url,
+            { realm => $realm, token => $token, extra => $extra });
+        $headers->header( Authorization => $header );
     }
-    if (any { $method eq $_ } @send_data_methods) {
+    if ( $is_send_data_method ) {
         $headers->header('Content-Type', q{application/x-www-form-urlencoded})
             unless $headers->header('Content-Type');
         $headers->header('Content-Length', bytes::length($content) );
@@ -660,7 +678,7 @@ sub gen_auth_header {
     my $extra = $args->{extra} || {};
     my $params = $self->gen_auth_params($method, $url, $args->{token}, $extra);
     my $realm = $args->{realm} || '';
-    my $authorization_header = build_auth_header($realm, $params);
+    my $authorization_header = build_auth_header($realm, {%$params, %$extra});
     $authorization_header;
 }
 
@@ -709,8 +727,8 @@ sub gen_auth_params {
     my $params = {};
     $extra ||= {};
     $params->{oauth_consumer_key} = $self->consumer_key || '';
-    $params->{oauth_timestamp} = time();
-    $params->{oauth_nonce} = gen_random_key();
+    $params->{oauth_timestamp} = $self->{_timestamp} || time();
+    $params->{oauth_nonce} = $self->{_nonce} || gen_random_key();
     $params->{oauth_version} = $OAuth::Lite::OAUTH_DEFAULT_VERSION;
     my $token_secret = '';
     if (defined $token) {
@@ -768,6 +786,17 @@ sub oauth_clear {
     my $self = shift;
     $self->{oauth_request}  = undef;
     $self->{oauth_response} = undef;
+}
+
+=head2 build_body_hash
+
+=cut
+
+sub build_body_hash {
+    my ( $self, $content ) = @_;
+    my $method_name = $self->{signature_method}->method_name;
+    my $hash = $self->{signature_method}->build_body_hash($content);
+    return $hash;
 }
 
 =head1 AUTHOR

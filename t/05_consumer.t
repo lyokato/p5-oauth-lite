@@ -153,13 +153,17 @@ like($auth_query4, qr{extra=foo&oauth_consumer_key=key&oauth_nonce=[a-fA-F0-9]+&
 
 =pod
 
-my $req = $c6->gen_oauth_request(
-	method  =>
-	url     =>
-	content =>
-	realm   =>
-	token   =>
-	params  => 
+my $c7 = OAuth::Lite::Consumer->new(
+    consumer_key    => q{consumer},
+    consumer_secret => q{dummy},
+    _nonce          => q{10369470270925},
+    _timestamp      => q{1236874236},
+);
+my $req7 = $c7->gen_oauth_request(
+method  => 'PUT',
+url     => q{http://www.example.com},
+content => q{Hello World!},
+headers => [ 'Content-Type' => q{text/plain} ],
 );
 
 =cut
