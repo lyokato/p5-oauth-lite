@@ -136,6 +136,11 @@ L<OAuth::Lite::AuthMethod>'s value you can choose from AUTH_HEADER, POST_BODY an
 
 The OAuth realm value for a protected-resource you wanto to access to. (optional. empty-string is set by default)
 
+=item use_request_body_hash
+
+If you use Request Body Hash extension, set 1.
+See Also L<http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/drafts/4/spec.html>
+
 =item site 
 
 The base site url of Service Provider
@@ -281,6 +286,7 @@ sub _init {
     $self->{callback_url} = $args{callback_url};
     $self->{oauth_request} = undef;
     $self->{oauth_response} = undef;
+    $self->{use_request_body_hash} = $args{use_request_body_hash} ? 1 : 0;
     $self->{_nonce} = $args{_nonce};
     $self->{_timestamp} = $args{_timestamp};
 }
@@ -790,13 +796,20 @@ sub oauth_clear {
 
 =head2 build_body_hash
 
+Build body hash according to the spec for 'OAuth Request Body Hash extension'
+http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/drafts/4/spec.html
+
+    my $hash = $self->build_body_hash($content);
+
 =cut
 
 sub build_body_hash {
     my ( $self, $content ) = @_;
-    my $method_name = $self->{signature_method}->method_name;
-    my $hash = $self->{signature_method}->build_body_hash($content);
-    return $hash;
+    if ( $self->{use_request_body_hash} ) {
+        my $hash = $self->{signature_method}->build_body_hash($content);
+        return $hash;
+    }
+    return;
 }
 
 =head1 AUTHOR
