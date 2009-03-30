@@ -1,5 +1,9 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.15  Mon Mar 30 18:12:00 2009
+    - added OAuth Request Body Hash support.
+      see http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/drafts/4/spec.html
+
 1.14  San Oct 19 15:37:00 2008
     - Consumer and Util now can handle arrayref parameters for such as checkbox values.
       Thanks to Evaldas Imbrasas.

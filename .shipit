@@ -1,8 +1,4 @@
 # auto-generated shipit config file.
-steps = CommitMessageWrap, FindVersion, ChangeVersion, CheckChangeLog, DistTest, Commit, Tag, MakeDist, UploadCPAN
+steps = FindVersion, ChangeVersion, CheckChangeLog, DistTest, MakeDist, UploadCPAN
 
-svn.tagpattern = release-%v
-commit_message.format = lang/perl/OAuth-Lite: %msg
-
-# svn.tagpattern = http://code.example.com/svn/tags/MyProj-%v
 # CheckChangeLog.files = ChangeLog, MyProj.CHANGES
