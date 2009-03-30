@@ -1,0 +1,61 @@
+Revision history for Perl extension OAuth::Lite.
+
+1.14  San Oct 19 15:37:00 2008
+    - Consumer and Util now can handle arrayref parameters for such as checkbox values.
+      Thanks to Evaldas Imbrasas.
+
+1.13  Thu Oct 08 10:34:00 2008
+    - Consumer now doesn't inherit LWP::UserAgent but delegate.
+    - Server::mod_perl2: fixed point that building regularized uri for proxy usage. borrowed code from Catalyst::Engine::Apache.
+    - Server::mod_perl2 now pushes error response according to OAuth Problem Reporting. but not completed yet.
+    - Server::mod_perl2 now handles XRDS if you set XRDSLocation on httpd.conf or directly override 'build_xrds' method, according to OAuth Discovery spec.
+
+1.12  Tue Aug 12 17:58:00 2008
+    - bugfix: Consumer doesn't pass extra params when using Header authorization.
+    - Server::mod_perl2 now handles parameters correctly.
+
+1.10  Tue Aug 12 15:43:00 2008
+    - Consumer::get_request_token can be passed extra params.
+      Now you can pass the value except for uri or realm.
+      For example "scope" value for Google-OAuth.
+    - Server::mod_perl2 now got new APIs and can control
+      Consumer Request extention.
+
+1.09  Mon Mar 31 15:47:00 2008
+    - Consumer::url_to_authorize and Consumer::get_access_token now can handles
+      empty token.
+
+1.08  Mon Mar 10 16:03:00 2008
+    - rt #33943
+      added Content-Length header in case request method is POST or PUT,
+      at the end of Consumer::gen_oauth_request.
+      Thanks, TOMI.
+
+1.07  Sun Jan 20 15:12:00 2008
+	- put sorting process into building query-string process.
+	  The hash keys order is deferrent between perl environments.
+		So, some tests failed.
+
+1.06  Fri Jan 18 18:28:00 2008
+	- changed not to use syntax like 'any {...} qw/FOO BAR/'.
+	  it seems to cause error on perl5.6
+
+1.05  Thu Jan 17 10:15:00 2008
+  - added inc/Module/Install to MANIFEST
+
+1.04  Wed Jan 16 15:30:00 2008
+  - fixed not to import methods when require bytes
+
+1.03  Wed Jan 16 14:22:00 2008
+  - added delegation methods on ServerUtil
+
+1.02  Wed Jan 16 13:50:00 2008
+  - fixed document
+  - fixed Makefile.PL
+
+1.01  Tue Jan 15 11:14:00 2008
+  - improved documentation
+
+1.00  Tue Jan  8 17:54:29 2008
+  - initial release
+
