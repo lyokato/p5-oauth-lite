@@ -1,5 +1,8 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.16  Wed Apr 01 17:12:00 2009
+    - oops! removed debug code.
+
 1.15  Mon Mar 30 18:12:00 2009
     - added OAuth Request Body Hash support.
       see http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/drafts/4/spec.html

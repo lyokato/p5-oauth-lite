@@ -548,7 +548,6 @@ sub gen_oauth_request {
         $headers->header('Content-Type', q{application/x-www-form-urlencoded});
     } else {
         my $origin_url = $url;
-        warn "auth header";
         if ( keys %$extra > 0 ) {
             my $data = normalize_params($extra);
             if ( $is_send_data_method && !$content ) {
@@ -558,9 +557,7 @@ sub gen_oauth_request {
             }
         }
         if ( $is_send_data_method ) {
-            warn "is_send";
             if ( my $hash = $self->build_body_hash($content) ) {
-                warn "hash";
                 $extra->{oauth_body_hash} = $hash;
             }
         }
