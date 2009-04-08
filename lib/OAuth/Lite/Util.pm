@@ -145,7 +145,7 @@ sub normalize_request_url {
     my $request_url = ($port && ($port == 80 || $port == 443))
         ? sprintf(q{%s://%s%s}, $uri->scheme, $uri->host, $uri->path)
         : sprintf(q{%s://%s:%d%s}, $uri->scheme, $uri->host, $port, $uri->path);
-    lc $request_url;
+    $request_url;
 }
 
 =head2 normalize_params($params);
