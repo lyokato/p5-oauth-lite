@@ -49,13 +49,21 @@ Constructor
 
     my $util = OAuth::Lite::ServerUtil->new;
 
+Set strict true by default, and it judge unsupported param as invalid when validating params.
+You can build ServerUtil as non-strict mode, then it accepts unsupported parameters.
+
+    my $util = OAuth::Lite::ServerUtil->new( strict => 0 );
+
 =cut
 
 sub new {
     my $class = shift;
+    my %args = @_;
+    my $strict = exists $args{strict} ? $args{strict} : 1;
     my $self = bless {
         supported_signature_methods => {},
-        allowed_extra_params => [],
+        allowed_extra_params        => [],
+        strict                      => $strict,
     }, $class;
     $self;
 }
@@ -149,6 +157,7 @@ sub support_signature_methods {
 
 Check if the request includes all required params
 and doesn't include unsupported params.
+It doesn't check unsupported params when working on strict mode.
 
     unless ($util->validate_params($params)) {
         $your_app->error( $util->errstr );
@@ -166,22 +175,22 @@ pass 1 for second argument. This flag indicates that oauth_token param is needed
 sub validate_params {
     my ($self, $origin_params, $check_token) = @_;
     my $params = {%$origin_params}; #copy
-    my $missing = q{Missing required parameter, "%s"};
-    my $unsupported = q{Unsupported parameter, "%s"};
-    delete $params->{oauth_consumer_key} or return $self->error(sprintf($missing, q{oauth_consumer_key}));
-    delete $params->{oauth_nonce} or return $self->error(sprintf($missing, q{oauth_nonce}));
-    delete $params->{oauth_timestamp} or return $self->error(sprintf($missing, q{oauth_timestamp}));
-    delete $params->{oauth_signature_method} or return $self->error(sprintf($missing, q{oauth_signature_method}));
-    delete $params->{oauth_signature} or return $self->error(sprintf($missing, q{oauth_signature}));
-    if ($check_token) {
-        delete $params->{oauth_token} or return $self->error(sprintf($missing, q{oauth_token}));
-    }
+    delete $params->{oauth_consumer_key} or return $self->error(PARAMETER_ABSENT);
+    delete $params->{oauth_nonce} or return $self->error(PARAMETER_ABSENT);
+    delete $params->{oauth_timestamp} or return $self->error(PARAMETER_ABSENT);
+    delete $params->{oauth_signature_method} or return $self->error(PARAMETER_ABSENT);
+    delete $params->{oauth_signature} or return $self->error(PARAMETER_ABSENT);
     delete $params->{oauth_version};
-    my @extra_params = keys %$params;
-    my @allowed = @{ $self->{allowed_extra_params} };
-    for my $extra ( @extra_params ) {
-        if (none { $extra eq $_ } @allowed) {
-            return $self->error(sprintf($unsupported, $extra));
+    if ($check_token) {
+        delete $params->{oauth_token} or return $self->error(PARAMETER_ABSENT);
+    }
+    if ( $self->{strict} ) {
+        my @extra_params = keys %$params;
+        my @allowed = @{ $self->{allowed_extra_params} };
+        for my $extra ( @extra_params ) {
+            if (none { $extra eq $_ } @allowed) {
+                return $self->error(PARAMETER_REJECTED);
+            }
         }
     }
     1;

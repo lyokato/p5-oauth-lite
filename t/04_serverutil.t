@@ -1,10 +1,11 @@
-use Test::More tests => 17;
+use Test::More tests => 18;
 
 use OAuth::Lite::ServerUtil;
 use OAuth::Lite::Util;
 use OAuth::Lite::SignatureMethod::HMAC_SHA1;
 
 my $util = OAuth::Lite::ServerUtil->new;
+my $non_strict_util = OAuth::Lite::ServerUtil->new( strict => 0 );
 
 eval {$util->support_signature_method('HMAC-SHA1');};
 ok(!$@, 'load HMAC-SHA1 signature method class');
@@ -76,6 +77,7 @@ my $base_string3 = OAuth::Lite::Util::create_signature_base_string($http_method,
 my $signature3 = $sign_method->sign($base_string3);
 $ext_params->{oauth_signature} = $signature3;
 ok(!$util->validate_params($ext_params, 1), $util->errstr);
+ok($non_strict_util->validate_params($ext_params, 1), 'validate_params should be success on non-strict mode.');
 
 my $signature_is_ok = $util->verify_signature(
 	method          => $http_method,

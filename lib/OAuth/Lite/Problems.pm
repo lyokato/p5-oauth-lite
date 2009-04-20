@@ -9,6 +9,7 @@ use List::MoreUtils qw(any);
 our %EXPORT_TAGS = ( all => [qw/
     VERJION_REJECTED
     PARAMETER_ABSENT
+    PARAMETER_REJECTED
     TIMESTAMP_REFUSED
     NONCE_USED
     SIGNATURE_METHOD_REJECTED
@@ -28,6 +29,7 @@ our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 
 use constant VERJION_REJECTED                  => 'verjion_rejected';
 use constant PARAMETER_ABSENT                  => 'parameter_absent';
+use constant PARAMETER_REJECTED                => 'parameter_rejected';
 use constant TIMESTAMP_REFUSED                 => 'timestamp_refused';
 use constant NONCE_USED                        => 'nonce_used';
 use constant SIGNATURE_METHOD_REJECTED         => 'signature_method_rejected';

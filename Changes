@@ -1,5 +1,9 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.18  Mon Apr 20 10:44:00 2009
+    - added non-strict mode on ServerUtil.
+      set strict=>0, then doesn't check if request has unsupported parameters or not.
+
 1.17  Wed Apr 08 16:58:00 2009
     - removed duplicated code.
       removed 'lc' on normalizing request uri.
