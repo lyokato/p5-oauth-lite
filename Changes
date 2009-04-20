@@ -1,5 +1,8 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.19  Mon Apr 20 10:44:00 2009
+    - server::mod_perl2 handles ServerUtil as non-strict mode.
+
 1.18  Mon Apr 20 10:44:00 2009
     - added non-strict mode on ServerUtil.
       set strict=>0, then doesn't check if request has unsupported parameters or not.

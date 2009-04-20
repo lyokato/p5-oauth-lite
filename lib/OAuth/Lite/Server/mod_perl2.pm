@@ -528,7 +528,7 @@ sub new {
     my $r = shift;
     my $self = bless {
         request => $r,
-        oauth => OAuth::Lite::ServerUtil->new,
+        oauth => OAuth::Lite::ServerUtil->new( strict => 0 ),
         realm => undef,
         secure => 0,
         mode => PROTECTED_RESOURCE,
