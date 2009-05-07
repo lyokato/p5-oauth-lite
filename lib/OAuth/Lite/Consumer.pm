@@ -225,7 +225,7 @@ And there is a flexible way.
         verifier => $verfication_code,
     );
 
-So does callback_url. You can set it on consutructor or url_to_authorize method directly.
+So does callback_url. You can set it on consutructor or get_request_token method directly.
 
     my $consumer = OAuth::Lite::Consumer->new(
         ...
