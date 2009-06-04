@@ -257,7 +257,7 @@ sub verify_signature {
     }
     my $method_class = $self->{supported_signature_methods}{$signature_method};
     my $method = $method_class->new(
-        consumer_secret => $consumer_secret, 
+        consumer_secret => $consumer_secret,
         token_secret    => $token_secret,
     );
     unless ($method->verify($base_string, $signature)) {
