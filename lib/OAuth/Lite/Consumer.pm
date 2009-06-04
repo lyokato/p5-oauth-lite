@@ -656,6 +656,115 @@ sub __request {
     $res;
 }
 
+=head2 get
+
+There are simple methods to request protected resources.
+You need to obtain access token and set it to consumer beforehand.
+
+    my $access_token = $consumer->get_access_token(
+        token    => $request_token,
+        verifier => $verifier,
+    );
+    # when successfully got an access-token,
+    # it internally execute saving method like following line.
+    # $consumer->access_token( $access_token )
+
+or
+    my $access_token = $your_app->pick_up_saved_access_token();
+    $consumer->access_token($access_token);
+
+Then you can access protected resource in a simple way.
+
+    $consumer->get( 'http://api.example.com/pictures' );
+
+This is same as
+
+    $consumer->request(
+        method => q{GET},
+        url    => q{http://api.example.com/picture},
+    );
+
+=cut
+
+sub get {
+    my ( $self, $url, $args ) = @_;
+    $args ||= {};
+    $args->{method} = 'GET';
+    $args->{url}    = $url;
+    $self->request(%$args);
+}
+
+=head2 post
+
+    $consumer->post( 'http://api.example.com/pictures', $content );
+
+This is same as
+
+    $consumer->request(
+        method  => q{POST},
+        url     => q{http://api.example.com/picture},
+        content => $content,
+    );
+
+
+=cut
+
+sub post {
+    my ( $self, $url, $content, $args ) = @_;
+    $args ||= {};
+    $args->{method}  = 'POST';
+    $args->{url}     = $url;
+    $args->{content} = $content;
+    $self->request(%$args);
+
+}
+
+=head2 put
+
+    $consumer->put( 'http://api.example.com/pictures', $content );
+
+This is same as
+
+    $consumer->request(
+        method  => q{PUT},
+        url     => q{http://api.example.com/picture},
+        content => $content,
+    );
+
+
+=cut
+
+sub put {
+    my ( $self, $url, $content, $args ) = @_;
+    $args ||= {};
+    $args->{method}  = 'PUT';
+    $args->{url}     = $url;
+    $args->{content} = $content;
+    $self->request(%$args);
+
+}
+
+=head2 delete
+
+    $consumer->delete('http://api.example.com/delete');
+
+This is same as
+
+    $consumer->request(
+        method  => q{DELETE},
+        url     => q{http://api.example.com/picture},
+    );
+
+=cut
+
+sub delete {
+    my ( $self, $url, $args ) = @_;
+    $args ||= {};
+    $args->{method} = 'DELETE';
+    $args->{url}    = $url;
+    $self->request(%$args);
+}
+
 =head2 find_realm_from_last_response
 
 =cut
