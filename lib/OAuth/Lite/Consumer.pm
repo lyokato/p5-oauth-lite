@@ -427,6 +427,8 @@ sub get_request_token {
         return $self->error($res->status_line);
     }
     my $token = OAuth::Lite::Token->from_encoded($res->content);
+    return $self->error(qq/oauth_callback_confirmed is not true/)
+        unless $token && $token->callback_confirmed;
     $self->request_token($token);
     $token;
 }
