@@ -1,4 +1,4 @@
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 use OAuth::Lite::Util;
 
@@ -82,3 +82,5 @@ my $base3 = OAuth::Lite::Util::create_signature_base_string($http_method, $reque
 # throughed unknown type
 is($base3, q{GET&http%3A%2F%2Fphotos.example.net%2Fphotos&file%3Dvacation.jpg%26oauth_consumer_key%3Ddpf43f3p214k3103%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1191242096%26oauth_token%3Dnnch734d00s12jdk%26oauth_version%3D1.0%26size%3Doriginal});
 
+is(OAuth::Lite::Util::normalize_params({ b => 1, a => 2 }), 'a=2&b=1');
+is(OAuth::Lite::Util::normalize_params([ b => 1, b => 2, a => 3 ]), 'a=3&b=1&b=2');

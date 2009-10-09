@@ -155,24 +155,41 @@ according to the way OAuth Core spec defines.
 
     my $string = normalize_params({ param1 => $param1, param2 => $param2 });
 
+or
+
+    my $string = normalize_params([ param_a => $param1, param_a => $param2 ]);
+
 =cut
 
-sub normalize_params {
+sub _normalize_params {
     my $params = shift;
     my @pairs = ();
-    for my $k (keys %$params) {
-        if (!ref $params->{$k}) {
-            push @pairs, 
-                sprintf(q{%s=%s}, encode_param($k), encode_param($params->{$k}));
+
+    for my $i (0..(scalar @$params / 2)-1) {
+        my $key = $params->[$i * 2];
+        my $value = $params->[$i * 2 + 1];
+
+        if (!ref $value) {
+            push @pairs,
+                sprintf(q{%s=%s}, encode_param($key), encode_param($value));
         }
-        elsif (ref $params->{$k} eq 'ARRAY') {
-            for my $v (@{ $params->{$k} }) {
-                push @pairs, 
-                    sprintf(q{%s=%s}, encode_param($k), encode_param($v));
+        elsif (ref $value eq 'ARRAY') {
+            for my $v (@{ $value }) {
+                push @pairs,
+                    sprintf(q{%s=%s}, encode_param($key), encode_param($v));
             }
         }
     }
     return join('&', sort { $a cmp $b } @pairs);
+}
+
+sub normalize_params {
+    my $params = shift;
+    if (ref $params eq 'HASH') {
+        return _normalize_params([ %$params ]);
+    } else {
+        return _normalize_params($params);
+    }
 }
 
 =head2 parse_auth_header($header)
