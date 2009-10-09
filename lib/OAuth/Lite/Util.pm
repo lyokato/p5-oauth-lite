@@ -153,11 +153,9 @@ sub normalize_request_url {
 Sort and encode params and concatenates them
 according to the way OAuth Core spec defines.
 
-    my $string = normalize_params({ param1 => $param1, param2 => $param2 });
-
-or
-
-    my $string = normalize_params([ param_a => $param1, param_a => $param2 ]);
+    my $string = normalize_params({
+        a => 1, c => 'hi%20there', f => [25, 50, 'a'], z => [ 'p', 't' ]
+    });
 
 =cut
 
