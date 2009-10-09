@@ -509,6 +509,17 @@ sub gen_oauth_request {
                 || $self->find_realm_from_last_response
                 || '';
 
+    if (ref $extra eq 'ARRAY') {
+        my %hash;
+        for (0...scalar(@$extra)/2-1) {
+            my $key = $extra->[$_ * 2];
+            my $value = $extra->[$_ * 2 + 1];
+            $hash{$key} ||= [];
+            push @{ $hash{$key} }, $value;
+        }
+        $extra = \%hash;
+    }
+
     my $headers = $args{headers};
     if (defined $headers) {
         if (ref($headers) eq 'ARRAY') {
