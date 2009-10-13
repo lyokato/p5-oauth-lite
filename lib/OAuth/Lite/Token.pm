@@ -11,7 +11,7 @@ use OAuth::Lite::Util qw(
     gen_random_key
 );
 
-__PACKAGE__->mk_accessors(qw/token secret/);
+__PACKAGE__->mk_accessors(qw/token secret callback_confirmed/);
 
 =head1 NAME
 
@@ -64,8 +64,9 @@ Token class.
 sub new {
     my ($class, %args) = @_;
     bless {
-        token  => undef,
-        secret => undef,
+        token              => undef,
+        secret             => undef,
+        callback_confirmed => 0,
         %args
     }, $class;
 }
@@ -123,6 +124,11 @@ sub from_encoded {
             $token->token(decode_param($val));
         } elsif ($key eq 'oauth_token_secret') {
             $token->secret(decode_param($val));
+        } elsif ($key eq 'oauth_callback_confirmed') {
+            my $p = decode_param($val);
+            if ($p && $p eq 'true') {
+                $token->callback_confirmed(1);
+            }
         }
     }
     return $token;

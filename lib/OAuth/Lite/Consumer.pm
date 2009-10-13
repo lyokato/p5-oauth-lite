@@ -53,30 +53,35 @@ OAuth::Lite::Consumer - consumer agent
     # At first you have to publish request-token, and
     # with it, redirect end-user to authorization-url that Service Provider tell you beforehand.
 
-    my $request_token = $consumer->get_request_token();
+    my $request_token = $consumer->get_request_token(
+        callback_url => q{http://yourservice/callback},
+    );
 
     $your_app->session->set( request_token => $request_token );
 
     $your_app->redirect( $consumer->url_to_authorize(
         token        => $request_token,
-        callback_url => q{http://yourservice/callback},
     ) );
 
     # After user authorize the request on a Service Provider side web application.
 
+    my $verifier = $your_app->request->param('oauth_verifier');
     my $request_token = $your_app->session->get('request_token');
 
-    my $access_token = $consumer->get_access_token( token => $request_token );
+    my $access_token = $consumer->get_access_token(
+        token    => $request_token,
+        verifier => $verifier,
+    );
 
     $your_app->session->set( access_token => $access_token );
     $your_app->session->remove('request_token');
 
-    # After all, you can request protected-resource with access token
+    # After all, you can request protected-resources with access token
 
     my $access_token = $your_app->session->get('access_token');
 
     my $res = $consumer->request(
-        method => 'GET', 
+        method => 'GET',
         url    => q{http://api.example.org/picture},
         token  => $access_token,
         params => { file => 'mypic.jpg', size => 'small' },
@@ -203,26 +208,31 @@ And there is a flexible way.
     );
 
     # set request token url here directly
-    my $rtoken = $consumer->get_request_token( url => q{http://api.example.org/request_token} );
-
-    # set authorize path here directly
-    my $url = $consumer->url_to_authorize(
-        token        => $rtoken, 
-        url          => q{http://www.example.org/authorize},
+    my $rtoken = $consumer->get_request_token(
+        url          => q{http://api.example.org/request_token},
         callback_url => q{http://www.yourservice/callback},
     );
 
-    # set access token url here directly
-    my $atoken = $consumer->get_access_token( url => q{http://api.example.org/access_token} );
+    # set authorize path here directly
+    my $url = $consumer->url_to_authorize(
+        token        => $rtoken,
+        url          => q{http://www.example.org/authorize},
+    );
 
-So does callback_url. You can set it on consutructor or url_to_authorize method directly.
+    # set access token url here directly
+    my $atoken = $consumer->get_access_token(
+        url      => q{http://api.example.org/access_token},
+        verifier => $verfication_code,
+    );
+
+So does callback_url. You can set it on consutructor or get_request_token method directly.
 
     my $consumer = OAuth::Lite::Consumer->new(
         ...
         callback_url => q{http://www.yourservice/callback},
     );
     ...
-    my $url = $consumer->url_to_authorize( token => $request_token );
+    my $url = $consumer->get_request_token();
 
 Or
 
@@ -230,8 +240,7 @@ Or
         ...
     );
     ...
-    my $url = $consumer->url_to_authorize(
-        token        => $request_token,
+    my $url = $consumer->get_request_token(
         callback_url => q{http://www.yourservice/callback},
     );
 
@@ -240,7 +249,7 @@ Or
 sub new {
     my ($class, %args) = @_;
     my $ua = delete $args{ua};
-    unless ($ua) { 
+    unless ($ua) {
         $ua = LWP::UserAgent->new;
         $ua->agent(join "/", __PACKAGE__, $OAuth::Lite::VERSION);
     }
@@ -336,11 +345,6 @@ sub authorization_url {
 
 authorization url, you can omit this if you set authorization_path on constructor.
 
-=item callback_url
-
-Url which service provider redirect end-user to after authorization.
-You can omit this if you set callback_url on constructor.
-
 =item token
 
 request token value
@@ -358,11 +362,9 @@ request token value
 sub url_to_authorize {
     my ($self, %args) = @_;
     $args{url} ||= $self->authorization_url;
-    $args{callback_url} ||= $self->{callback_url};
     my $url = $args{url}
         or Carp::croak qq/url_to_authorize needs url./;
     my %params = ();
-    $params{oauth_callback} = $args{callback_url} if $args{callback_url};
     if (defined $args{token}) {
         my $token = $args{token};
         $params{oauth_token} = ( eval { $token->isa('OAuth::Lite::Token') } )
@@ -391,10 +393,15 @@ Request token url. You can omit this if you set request_token_path on constructo
 Realm for the resource you want to access to.
 You can omit this if you set realm on constructor.
 
+=item callback_url
+
+Url which service provider redirect end-user to after authorization.
+You can omit this if you set callback_url on constructor.
+
 =back
 
     my $token = $consumer->get_request_token(
-        url   => q{http://api.example.org/request_token}, 
+        url   => q{http://api.example.org/request_token},
         realm => q{http://api.example.org/picture},
     ) or die $consumer->errstr;
 
@@ -410,15 +417,18 @@ sub get_request_token {
         or Carp::croak qq/get_request_token needs url in hash params
             or set request_token_path on constructor./;
     my $realm = delete $args{realm} || $self->{realm} || '';
+    my $callback = delete $args{callback_url} || $self->{callback_url} || 'oob';
     my $res = $self->__request(
         realm  => $realm,
         url    => $request_token_url,
-        params => {%args},
+        params => {%args, oauth_callback => $callback},
     );
     unless ($res->is_success) {
         return $self->error($res->status_line);
     }
     my $token = OAuth::Lite::Token->from_encoded($res->content);
+    return $self->error(qq/oauth_callback_confirmed is not true/)
+        unless $token && $token->callback_confirmed;
     $self->request_token($token);
     $token;
 }
@@ -444,12 +454,17 @@ You can omit this if you set realm on constructor.
 
 Request token object.
 
+=item verifier
+
+Verfication code which provider returns.
+
 =back
 
     my $token = $consumer->get_access_token(
-        url   => q{http://api.example.org/request_token}, 
-        realm => q{http://api.example.org/picture},
-        token => $request_token,
+        url      => q{http://api.example.org/request_token},
+        realm    => q{http://api.example.org/picture},
+        token    => $request_token,
+        verifier => $verification_code,
     ) or die $consumer->errstr;
 
     say $token->token;
@@ -466,10 +481,13 @@ sub get_access_token {
     my $token = defined $args{token} ? $args{token} : $self->request_token;
     Carp::croak qq/get_access_token needs token./ unless defined $token;
     my $realm = $args{realm} || $self->{realm} || '';
+    my $verifier = $args{verifier}
+        or Carp::croak qq/verfier not found./;
     my $res = $self->__request(
         realm => $realm,
         url   => $access_token_url,
         token => $token,
+        params => { oauth_verifier => $verifier },
     );
     unless ($res->is_success) {
         return $self->error($res->status_line);
@@ -559,8 +577,13 @@ sub gen_oauth_request {
         $headers->header('Content-Type', q{application/x-www-form-urlencoded});
     } else {
         my $origin_url = $url;
-        if ( keys %$extra > 0 ) {
-            my $data = normalize_params($extra);
+        my $copied_params = {};
+        for my $param_key ( keys %$extra ) {
+            next if $param_key =~ /^x?oauth_/;
+            $copied_params->{$param_key} = $extra->{$param_key};
+        }
+        if ( keys %$copied_params > 0 ) {
+            my $data = normalize_params($copied_params);
             if ( $is_send_data_method && !$content ) {
                 $content = $data;
             } else {
@@ -651,6 +674,115 @@ sub __request {
     $res;
 }
 
+=head2 get
+
+There are simple methods to request protected resources.
+You need to obtain access token and set it to consumer beforehand.
+
+    my $access_token = $consumer->get_access_token(
+        token    => $request_token,
+        verifier => $verifier,
+    );
+    # when successfully got an access-token,
+    # it internally execute saving method like following line.
+    # $consumer->access_token( $access_token )
+
+or
+    my $access_token = $your_app->pick_up_saved_access_token();
+    $consumer->access_token($access_token);
+
+Then you can access protected resource in a simple way.
+
+    $consumer->get( 'http://api.example.com/pictures' );
+
+This is same as
+
+    $consumer->request(
+        method => q{GET},
+        url    => q{http://api.example.com/picture},
+    );
+
+=cut
+
+sub get {
+    my ( $self, $url, $args ) = @_;
+    $args ||= {};
+    $args->{method} = 'GET';
+    $args->{url}    = $url;
+    $self->request(%$args);
+}
+
+=head2 post
+
+    $consumer->post( 'http://api.example.com/pictures', $content );
+
+This is same as
+
+    $consumer->request(
+        method  => q{POST},
+        url     => q{http://api.example.com/picture},
+        content => $content,
+    );
+
+
+=cut
+
+sub post {
+    my ( $self, $url, $content, $args ) = @_;
+    $args ||= {};
+    $args->{method}  = 'POST';
+    $args->{url}     = $url;
+    $args->{content} = $content;
+    $self->request(%$args);
+
+}
+
+=head2 put
+
+    $consumer->put( 'http://api.example.com/pictures', $content );
+
+This is same as
+
+    $consumer->request(
+        method  => q{PUT},
+        url     => q{http://api.example.com/picture},
+        content => $content,
+    );
+
+
+=cut
+
+sub put {
+    my ( $self, $url, $content, $args ) = @_;
+    $args ||= {};
+    $args->{method}  = 'PUT';
+    $args->{url}     = $url;
+    $args->{content} = $content;
+    $self->request(%$args);
+
+}
+
+=head2 delete
+
+    $consumer->delete('http://api.example.com/delete');
+
+This is same as
+
+    $consumer->request(
+        method  => q{DELETE},
+        url     => q{http://api.example.com/picture},
+    );
+
+=cut
+
+sub delete {
+    my ( $self, $url, $args ) = @_;
+    $args ||= {};
+    $args->{method} = 'DELETE';
+    $args->{url}    = $url;
+    $self->request(%$args);
+}
+
 =head2 find_realm_from_last_response
 
 =cut
@@ -692,7 +824,7 @@ sub gen_auth_header {
     my $extra = $args->{extra} || {};
     my $params = $self->gen_auth_params($method, $url, $args->{token}, $extra);
     my $realm = $args->{realm} || '';
-    my $authorization_header = build_auth_header($realm, {%$params, %$extra});
+    my $authorization_header = build_auth_header($realm, $params);
     $authorization_header;
 }
 
@@ -755,9 +887,10 @@ sub gen_auth_params {
     if ($params->{oauth_signature_method} eq 'PLAINTEXT' && lc($url) !~ /^https/) {
         warn qq(PLAINTEXT signature method should be used on SSL/TSL.);
     }
-    my $base = create_signature_base_string($method, $url, {%$params, %$extra});
+    $params = {%$params, %$extra};
+    my $base = create_signature_base_string($method, $url, $params);
     $params->{oauth_signature} = $self->{signature_method}->new(
-        consumer_secret => $consumer_secret, 
+        consumer_secret => $consumer_secret,
         token_secret    => $token_secret,
     )->sign($base);
     $params;

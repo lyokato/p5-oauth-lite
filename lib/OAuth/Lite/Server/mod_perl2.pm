@@ -61,7 +61,7 @@ See it.
             &&  !$token->is_expired) {
             return $self->error(q{Invalid token});
         }
-        return $token->secret; 
+        return $token->secret;
     }
 
     sub get_access_token_secret {
@@ -71,7 +71,7 @@ See it.
             && !$token->is_expired) {
             return $self->error(q{Invalid token});
         }
-        return $token->secret; 
+        return $token->secret;
     }
 
     sub get_consumer_secret {
@@ -85,7 +85,7 @@ See it.
     }
 
     sub publish_request_token {
-        my ($self, $consumer_key) = @_;
+        my ($self, $consumer_key, $callback_url) = @_;
         my $token = OAuth::Lite::Token->new_random;
         MyDB::Scheme->resultset('RequestToken')->create({
             token        => $token->token,
@@ -93,22 +93,25 @@ See it.
             realm        => $self->realm,
             consumer_key => $consumer_key,
             expired_on   => '',
+            callback     => $callback_url,
         });
         return $token;
     }
 
     sub publish_access_token {
-        my ($self, $consumer_key, $request_token_string) = @_;
-        my $request_token = MyDB::Scheme->resultset('RequestToken')->find($request_Token_string);
+        my ($self, $consumer_key, $request_token_string, $verifier) = @_;
+        my $request_token = MyDB::Scheme->resultset('RequestToken')->find($request_token_string);
         unless ($request_token
             &&  $request_token->is_authorized_by_user
             && !$request_token->is_exchanged_to_access_token
-            && !$request_token->is_expired) {
+            && !$request_token->is_expired
+            &&  $request_token->has_verifier
+            &&  $request_token->verifier eq $verifier) {
             return $self->error(q{Invalid token});
         }
         my $access_token = OAuth::Lite::Token->new_random;
         MyDB::Scheme->resultset('AccessToken')->create({
-            token        => $request_token->token, 
+            token        => $request_token->token,
             realm        => $self->realm,
             secret       => $request_token->secret,
             consumer_key => $consumer_key,
@@ -238,12 +241,12 @@ Among requests the consumer send service-provider, there shouldn't be
 same nonce, and new timestamp should be greater than old ones.
 If they are valid, returns 1, or returns 0.
 
-=head2 publish_request_token($consumer_key)
+=head2 publish_request_token($consumer_key, $callback_url)
 
 Create new request-token, and save it,
 and returns it as L<OAuth::Lite::Token> object.
 
-=head2 publish_access_token($consumer_key, $request_token_string)
+=head2 publish_access_token($consumer_key, $request_token_string, $verifier)
 
 If the passed request-token is valid,
 create new access-token, and save it,
@@ -658,13 +661,14 @@ sub __service {
     if ($self->is_required_request_token) {
 
         $self->oauth->verify_signature(
-            method          => $self->request_method(), 
+            method          => $self->request_method(),
             params          => $params,
             url             => $request_uri,
             consumer_secret => $consumer_secret,
         ) or return $self->errout(401, $self->oauth->errstr||SIGNATURE_INVALID);
 
-        my $request_token = $self->publish_request_token($consumer_key)
+        my $callback_url = $params->{oauth_callback} || 'oob';
+        my $request_token = $self->publish_request_token($consumer_key, $callback_url)
             or return $self->errout(401, $self->errstr);
         return $self->__output_token($request_token);
 
@@ -673,16 +677,17 @@ sub __service {
         my $token_value = $params->{oauth_token};
         my $token_secret = $self->get_request_token_secret($token_value);
         unless (defined $token_secret) {
-            return $self->errout(401, $self->errstr||TOKEN_REJECTED); 
+            return $self->errout(401, $self->errstr||TOKEN_REJECTED);
         }
         $self->oauth->verify_signature(
-            method          => $self->request_method(), 
+            method          => $self->request_method(),
             params          => $params,
             url             => $request_uri,
             consumer_secret => $consumer_secret || '',
             token_secret    => $token_secret || '',
         ) or return $self->errout(401, $self->oauth->errstr||SIGNATURE_INVALID);
-        my $access_token = $self->publish_access_token($consumer_key, $token_value)
+        my $verifier = $params->{oauth_verifier} || '';
+        my $access_token = $self->publish_access_token($consumer_key, $token_value, $verifier)
             or return $self->errout(401, $self->errstr);
         return $self->__output_token($access_token);
 
@@ -698,7 +703,7 @@ sub __service {
         }
 
         $self->oauth->verify_signature(
-            method          => $self->request_method(), 
+            method          => $self->request_method(),
             params          => $params,
             url             => $request_uri,
             consumer_secret => $consumer_secret || '',
@@ -833,13 +838,13 @@ sub get_consumer_secret {
 }
 
 sub publish_request_token {
-    my ($self, $consumer_key) = @_;
+    my ($self, $consumer_key, $callback_url) = @_;
     my $token = OAuth::Lite::Token->new;
     return $token;
 }
 
 sub publish_access_token {
-    my ($self, $request_token_string) = @_;
+    my ($self, $request_token_string, $verifier) = @_;
     # validate request token
     # and publish access token
     # return $token;

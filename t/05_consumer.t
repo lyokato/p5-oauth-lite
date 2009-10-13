@@ -1,4 +1,4 @@
-use Test::More tests => 54;
+use Test::More tests => 53;
 
 use URI::Escape;
 use OAuth::Lite::Consumer;
@@ -81,7 +81,7 @@ is ($auth_url2, q{http://example2.org/path/to/authorize?oauth_token=foo}, 'url_t
 my $callback_url = q{http://myservice/callback};
 my $enc_callback_url = URI::Escape::uri_escape($callback_url);
 my $auth_url3 = $c5->url_to_authorize( callback_url => $callback_url );
-is( $auth_url3, qq{http://example2.org/path/to/authorize?oauth_callback=$enc_callback_url} );
+#is( $auth_url3, qq{http://example2.org/path/to/authorize?oauth_callback=$enc_callback_url} );
 
 my $auth_url4 = $c5->url_to_authorize( token => '' );
 is ($auth_url4, q{http://example2.org/path/to/authorize?oauth_token=}, 'url_to_authorize works as expected.');
@@ -97,7 +97,7 @@ my $c6 = OAuth::Lite::Consumer->new(
 );
 
 my $auth_url5 = $c6->url_to_authorize( token => $atoken1 );
-is( $auth_url5, qq{http://example2.org/path/to/authorize?oauth_callback=$enc_callback_url&oauth_token=foo} );
+is( $auth_url5, qq{http://example2.org/path/to/authorize?oauth_token=foo} );
 
 my $oauth_params1 = $c6->gen_auth_params('GET', 'http://example.org/');
 ok(!exists $oauth_params1->{oauth_token}, "oauth_token shouldn't be included");
