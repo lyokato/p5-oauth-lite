@@ -39,6 +39,7 @@ t/03_signature_method_rsa_sha1.t
 t/04_serverutil.t
 t/05_consumer.t
 t/06_authmethod.t
+t/07_signing_requests.t
 t/98_perlcritic.t
 t/99_pod.t
 t/99_pod_coverage.t
