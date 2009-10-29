@@ -23,14 +23,13 @@ __PACKAGE__->mk_accessors(qw(
 use Carp ();
 use bytes ();
 use URI;
-use LWP::UserAgent;
 use HTTP::Request;
 use HTTP::Headers;
 use UNIVERSAL::require;
 use List::MoreUtils qw(any);
 
 use OAuth::Lite;
-
+use OAuth::Lite::Agent;
 use OAuth::Lite::Token;
 use OAuth::Lite::Util qw(:all);
 use OAuth::Lite::AuthMethod qw(:all);
@@ -100,7 +99,9 @@ OAuth::Lite::Consumer - consumer agent
         # another error.
     }
 
-    my $resource = $res->content;
+    # OAuth::Lite::Agent automatically adds Accept-Encoding gzip header to
+    # request, so, when you use default agent, call decoded_content.
+    my $resource = $res->decoded_content || $res->content;
 
     $your_app->handle_resource($resource);
 
@@ -250,7 +251,7 @@ sub new {
     my ($class, %args) = @_;
     my $ua = delete $args{ua};
     unless ($ua) {
-        $ua = LWP::UserAgent->new;
+        $ua = OAuth::Lite::Agent->new;
         $ua->agent(join "/", __PACKAGE__, $OAuth::Lite::VERSION);
     }
     my $self = bless {
@@ -426,7 +427,7 @@ sub get_request_token {
     unless ($res->is_success) {
         return $self->error($res->status_line);
     }
-    my $token = OAuth::Lite::Token->from_encoded($res->content);
+    my $token = OAuth::Lite::Token->from_encoded($res->decoded_content||$res->content);
     return $self->error(qq/oauth_callback_confirmed is not true/)
         unless $token && $token->callback_confirmed;
     $self->request_token($token);
@@ -492,7 +493,7 @@ sub get_access_token {
     unless ($res->is_success) {
         return $self->error($res->status_line);
     }
-    my $access_token = OAuth::Lite::Token->from_encoded($res->content);
+    my $access_token = OAuth::Lite::Token->from_encoded($res->decoded_content||$res->content);
     $self->access_token($access_token);
     $access_token;
 }
@@ -643,7 +644,7 @@ body data sent when method is POST or PUT.
 =back
 
     my $response = $consumer->request(
-        method  => 'POST', 
+        method  => 'POST',
         url     => 'http://api.example.com/picture',
         headers => [ Accept => q{...}, 'Content-Type' => q{...}, ... ],
         content => $content,
@@ -693,14 +694,20 @@ or
 
 Then you can access protected resource in a simple way.
 
-    $consumer->get( 'http://api.example.com/pictures' );
+    my $res = $consumer->get( 'http://api.example.com/pictures' );
+    if ($res->is_success) {
+        say $res->decoded_content||$res->content;
+    }
 
 This is same as
 
-    $consumer->request(
+    my $res = $consumer->request(
         method => q{GET},
         url    => q{http://api.example.com/picture},
     );
+    if ($res->is_success) {
+        say $res->decoded_content||$res->content;
+    }
 
 =cut
 
@@ -714,15 +721,21 @@ sub get {
 
 =head2 post
 
-    $consumer->post( 'http://api.example.com/pictures', $content );
+    $res = $consumer->post( 'http://api.example.com/pictures', $content );
+    if ($res->is_success) {
+        ...
+    }
 
 This is same as
 
-    $consumer->request(
+    $res = $consumer->request(
         method  => q{POST},
         url     => q{http://api.example.com/picture},
         content => $content,
     );
+    if ($res->is_success) {
+        ...
+    }
 
 
 =cut
@@ -739,15 +752,21 @@ sub post {
 
 =head2 put
 
-    $consumer->put( 'http://api.example.com/pictures', $content );
+    $res = $consumer->put( 'http://api.example.com/pictures', $content );
+    if ($res->is_success) {
+        ...
+    }
 
 This is same as
 
-    $consumer->request(
+    my $res = $consumer->request(
         method  => q{PUT},
         url     => q{http://api.example.com/picture},
         content => $content,
     );
+    if ($res->is_success) {
+        ...
+    }
 
 
 =cut
@@ -764,14 +783,20 @@ sub put {
 
 =head2 delete
 
-    $consumer->delete('http://api.example.com/delete');
+    my $res = $consumer->delete('http://api.example.com/delete');
+    if ($res->is_success) {
+        ...
+    }
 
 This is same as
 
-    $consumer->request(
+    my $res = $consumer->request(
         method  => q{DELETE},
         url     => q{http://api.example.com/picture},
     );
+    if ($res->is_success) {
+        ...
+    }
 
 =cut
 

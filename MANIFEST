@@ -16,6 +16,7 @@ inc/Module/Install/WriteAll.pm
 inc/Test/More.pm
 lib/OAuth/Lite.pm
 lib/OAuth/Lite/AuthMethod.pm
+lib/OAuth/Lite/Agent.pm
 lib/OAuth/Lite/Consumer.pm
 lib/OAuth/Lite/Server/mod_perl2.pm
 lib/OAuth/Lite/Server/Test/Echo.pm
@@ -41,5 +42,6 @@ t/04_serverutil.t
 t/05_consumer.t
 t/06_authmethod.t
 t/07_signing_requests.t
+t/08_agent.t
 t/99_pod.t
 t/99_pod_coverage.t

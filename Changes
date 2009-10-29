@@ -1,5 +1,10 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.22  Tue Oct 29 12:15:00 2009
+    - added OAuth::Lite::Agent for default.
+      This added 'gzip' to Accept-Encoding header.
+      And fixed document to use $res->decoded_content;
+
 1.21  Tue Oct 13 12:29:00 2009
     - updated for OAuth Core 1.0 Rev A
       and added example/twitter.pl
