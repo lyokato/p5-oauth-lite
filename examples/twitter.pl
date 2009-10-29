@@ -60,5 +60,5 @@ say "TOKEN:".$access_token->token;
 say "TOKEN-SECRET:".$access_token->secret;
 
 my $res = $consumer->get("http://twitter.com/statuses/friends_timeline.json");
-say $res->content;
+say ($res->decoded_content||$res->content);
 

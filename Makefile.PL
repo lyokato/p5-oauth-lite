@@ -13,5 +13,6 @@ requires 'Crypt::OpenSSL::RSA'    => '0.25';
 requires 'Crypt::OpenSSL::Random' => '0.04';
 requires 'List::MoreUtils'        => '0.21';
 requires 'MIME::Base64'           => '3.07';
+requires 'Compress::Zlib'         => '2.001';
 auto_include;
 WriteAll;
