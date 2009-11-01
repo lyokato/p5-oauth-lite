@@ -667,7 +667,7 @@ sub __service {
             consumer_secret => $consumer_secret,
         ) or return $self->errout(401, $self->oauth->errstr||SIGNATURE_INVALID);
 
-        my $callback_url = $params->{oauth_callback} || 'oob';
+        my $callback_url = $params->{oauth_callback};
         my $request_token = $self->publish_request_token($consumer_key, $callback_url)
             or return $self->errout(401, $self->errstr);
         return $self->__output_token($request_token);
