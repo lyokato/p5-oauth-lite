@@ -148,11 +148,14 @@ Returns encoded line from token object.
 
 sub as_encoded {
     my $self = shift;
-    my $token  = $self->token  || '';
-    my $secret = $self->secret || '';
-    sprintf(q{oauth_token=%s&oauth_token_secret=%s},
+    my $token   = $self->token  || '';
+    my $secret  = $self->secret || '';
+    my $encoded = sprintf(q{oauth_token=%s&oauth_token_secret=%s},
       encode_param($token),
       encode_param($secret));
+
+    $encoded .= q{&oauth_callback_confirmed=true} if $self->callback_confirmed;
+    return $encoded;
 }
 
 =head1 AUTHOR

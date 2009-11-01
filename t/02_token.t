@@ -1,4 +1,4 @@
-use Test::More tests => 12;
+use Test::More tests => 15;
 
 use OAuth::Lite::Token;
 
@@ -29,3 +29,13 @@ my $t4 = OAuth::Lite::Token->from_encoded(q{oauth_token=foo&oauth_token_secret=b
 ok($t4->callback_confirmed);
 my $t5 = OAuth::Lite::Token->from_encoded(q{oauth_token=foo&oauth_token_secret=bar&oauth_callback_confirmed=false});
 ok(!$t5->callback_confirmed);
+
+my $t6 = OAuth::Lite::Token->new(
+	token              => 'foo',
+	secret             => 'bar',
+  callback_confirmed => 1,
+);
+
+is($t6->token, 'foo');
+is($t6->secret, 'bar');
+is($t6->as_encoded, q{oauth_token=foo&oauth_token_secret=bar&oauth_callback_confirmed=true});
