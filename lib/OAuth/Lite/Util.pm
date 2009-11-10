@@ -81,7 +81,7 @@ Encode parameter according to the way defined in OAuth Core spec.
 
 sub encode_param {
     my $param = shift;
-    URI::Escape::uri_escape_utf8($param, '^\w.~-');
+    URI::Escape::uri_escape($param, '^\w.~-');
 }
 
 =head2 decode_param($encoded_param)

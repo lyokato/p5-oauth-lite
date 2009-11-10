@@ -1,5 +1,14 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.23  Tue Nov 10 12:35:00 2009
+    - applied patches from ishikawa-san.
+      now Token as_encoded results with oauth_confirmed for Rev-A.
+
+    - encoding method fixed not to force encoding to UTF8. uri_escape_utf8 -> uri_escape
+      uri_escpae_utf8 is not convient when another encoding is needed,
+      for example, some cell-phone requires not-UTF8 encoding.
+      thanks to weboo.
+
 1.22  Tue Oct 29 12:15:00 2009
     - added OAuth::Lite::Agent for default.
       This added 'gzip' to Accept-Encoding header.
