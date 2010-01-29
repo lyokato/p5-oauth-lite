@@ -3,8 +3,6 @@ use warnings;
 
 use Test::More tests => 22;
 
-use OAuth::Lite::Problems;
-
 BEGIN { use_ok('OAuth::Lite::Problems') };
 require_ok('OAuth::Lite::Problems');
 
