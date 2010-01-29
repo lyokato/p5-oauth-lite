@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use base 'Exporter';
-use List::MoreUtils qw(any);
 
 our %EXPORT_TAGS = ( all => [qw/
     VERSION_REJECTED
@@ -48,10 +47,12 @@ use constant PERMISSION_UNKNOWN                => 'permission_unknown';
 use constant PERMISSION_DENIED                 => 'permission_denied';
 use constant USER_REFUSED                      => 'user_refused';
 
+my %PROBLEMS = map { __PACKAGE__->$_() => 1 } @EXPORT_OK;
+
 sub match {
     my $class = shift;
     my $error = shift;
-    return (any { $error eq $class->$_() } @EXPORT_OK) ? 1 : 0;
+    return $PROBLEMS{$error} ? 1 : 0;
 }
 
 
