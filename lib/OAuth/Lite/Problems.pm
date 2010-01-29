@@ -80,7 +80,7 @@ This provides constants which used in OAuth Problem Reporting spec.
 
 =head1 SEE ALSO
 
-http://oauth.pbwiki.com/ProblemReporting
+http://oauth.pbworks.com/ProblemReporting
 
 =head1 AUTHOR
 
