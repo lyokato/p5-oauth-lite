@@ -16,12 +16,14 @@ our %EXPORT_TAGS = ( all => [qw/
     SIGNATURE_INVALID
     CONSUMER_KEY_UNKNOWN
     CONSUMER_KEY_REJECTED
+    CONSUMER_KEY_REFUSED
     TOKEN_USED
     TOKEN_EXPIRED
     TOKEN_REVOKED
     TOKEN_REJECTED
     ADDITIONAL_AUTHORIZATION_REQUIRED
     PERMISSION_UNKNOWN
+    PERMISSION_DENIED
     USER_REFUSED
 /] );
 
@@ -36,12 +38,14 @@ use constant SIGNATURE_METHOD_REJECTED         => 'signature_method_rejected';
 use constant SIGNATURE_INVALID                 => 'signature_invalid';
 use constant CONSUMER_KEY_UNKNOWN              => 'consumer_key_unknown';
 use constant CONSUMER_KEY_REJECTED             => 'consumer_key_rejected';
+use constant CONSUMER_KEY_REFUSED              => 'consumer_key_refused';
 use constant TOKEN_USED                        => 'token_used';
 use constant TOKEN_EXPIRED                     => 'token_expired';
 use constant TOKEN_REVOKED                     => 'token_revoked';
 use constant TOKEN_REJECTED                    => 'token_rejected';
 use constant ADDITIONAL_AUTHORIZATION_REQUIRED => 'additional_authorization_required';
 use constant PERMISSION_UNKNOWN                => 'permission_unknown';
+use constant PERMISSION_DENIED                 => 'permission_denied';
 use constant USER_REFUSED                      => 'user_refused';
 
 sub match {
