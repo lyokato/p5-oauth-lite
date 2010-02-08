@@ -87,8 +87,9 @@ is(OAuth::Lite::Util::normalize_params({ b => 1, a => 2 }), 'a=2&b=1');
 # From http://oauth.net/core/1.0#anchor14
 my %hash = (
     a => 1,
+    a1 => 1,
     c => 'hi there',
     f => [25, 50, 'a'],
     z => ['p', 't'],
 );
-is(OAuth::Lite::Util::normalize_params(\%hash), 'a=1&c=hi%20there&f=25&f=50&f=a&z=p&z=t');
+is(OAuth::Lite::Util::normalize_params(\%hash), 'a=1&a1=1&c=hi%20there&f=25&f=50&f=a&z=p&z=t');
