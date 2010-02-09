@@ -1,5 +1,22 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.24  Tue Feb 9 10:57:00 2010
+
+    - Improved problems matching, hash lookup is faster than linear search +
+      function call.
+    - Added CONSUMER_KEY_REFUSED, PERMISSION_DENIED
+        Thanks to Ishikawa.
+
+    - fixed normalized_parameter for invlid key order
+        Thanks to hidek.
+
+    http://github.com/lyokato/p5-oauth-lite/commit/2a1b1ce5169b9494feeb3c661ef02e60a548ae00
+    http://github.com/ishikawa/p5-oauth-lite/commit/4fed3f78a46c4cc135608274d5825c3b6c507029
+    http://github.com/ishikawa/p5-oauth-lite/commit/03b9cf94494b2db206494259a622b337150d4865
+    http://github.com/ishikawa/p5-oauth-lite/commit/1b18cac370de4daf7e417d2f59a6a177494d253a
+    http://github.com/ishikawa/p5-oauth-lite/commit/f300a719db71221c7993114e4002fd6ec49458e3
+    http://github.com/ishikawa/p5-oauth-lite/commit/1fcaa9e0f2eab50b1901e8d54a1e70b5e9fb70b5
+
 1.23  Tue Nov 10 12:35:00 2009
     - applied patches from ishikawa-san.
       now Token as_encoded results with oauth_confirmed for Rev-A.
