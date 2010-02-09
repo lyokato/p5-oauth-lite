@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use base 'Exporter';
-use List::MoreUtils qw(any);
 
 our %EXPORT_TAGS = ( all => [qw/
     VERSION_REJECTED
@@ -16,12 +15,14 @@ our %EXPORT_TAGS = ( all => [qw/
     SIGNATURE_INVALID
     CONSUMER_KEY_UNKNOWN
     CONSUMER_KEY_REJECTED
+    CONSUMER_KEY_REFUSED
     TOKEN_USED
     TOKEN_EXPIRED
     TOKEN_REVOKED
     TOKEN_REJECTED
     ADDITIONAL_AUTHORIZATION_REQUIRED
     PERMISSION_UNKNOWN
+    PERMISSION_DENIED
     USER_REFUSED
 /] );
 
@@ -36,18 +37,22 @@ use constant SIGNATURE_METHOD_REJECTED         => 'signature_method_rejected';
 use constant SIGNATURE_INVALID                 => 'signature_invalid';
 use constant CONSUMER_KEY_UNKNOWN              => 'consumer_key_unknown';
 use constant CONSUMER_KEY_REJECTED             => 'consumer_key_rejected';
+use constant CONSUMER_KEY_REFUSED              => 'consumer_key_refused';
 use constant TOKEN_USED                        => 'token_used';
 use constant TOKEN_EXPIRED                     => 'token_expired';
 use constant TOKEN_REVOKED                     => 'token_revoked';
 use constant TOKEN_REJECTED                    => 'token_rejected';
 use constant ADDITIONAL_AUTHORIZATION_REQUIRED => 'additional_authorization_required';
 use constant PERMISSION_UNKNOWN                => 'permission_unknown';
+use constant PERMISSION_DENIED                 => 'permission_denied';
 use constant USER_REFUSED                      => 'user_refused';
+
+my %PROBLEMS = map { __PACKAGE__->$_() => 1 } @EXPORT_OK;
 
 sub match {
     my $class = shift;
     my $error = shift;
-    return (any { $error eq $class->$_() } @EXPORT_OK) ? 1 : 0;
+    return $PROBLEMS{$error} ? 1 : 0;
 }
 
 
@@ -80,7 +85,7 @@ This provides constants which used in OAuth Problem Reporting spec.
 
 =head1 SEE ALSO
 
-http://oauth.pbwiki.com/ProblemReporting
+http://oauth.pbworks.com/ProblemReporting
 
 =head1 AUTHOR
 
