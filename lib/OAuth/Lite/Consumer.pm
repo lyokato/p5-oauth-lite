@@ -31,6 +31,7 @@ use List::MoreUtils qw(any);
 use OAuth::Lite;
 use OAuth::Lite::Agent;
 use OAuth::Lite::Token;
+use OAuth::Lite::Response;
 use OAuth::Lite::Util qw(:all);
 use OAuth::Lite::AuthMethod qw(:all);
 
@@ -377,6 +378,26 @@ sub url_to_authorize {
     $url->as_string;
 }
 
+=head2 obtain_request_token(%params)
+
+Returns a request token as an L<OAuth::Lite::Response> object.
+Except for that, this method behaves same as get_request_token.
+
+=cut
+
+sub obtain_request_token {
+    my $self = shift;
+    my $res = $self->_get_request_token(@_);
+    unless ($res->is_success) {
+        return $self->error($res->status_line);
+    }
+    my $resp = OAuth::Lite::Response->from_encoded($res->decoded_content||$res->content);
+    return $self->error(qq/oauth_callback_confirmed is not true/)
+        unless $resp && $resp->token && $resp->token->callback_confirmed;
+    $self->request_token($resp->token);
+    $resp;
+}
+
 =head2 get_request_token(%params)
 
 Returns a request token as an L<OAuth::Lite::Token> object.
@@ -412,6 +433,19 @@ You can omit this if you set callback_url on constructor.
 =cut
 
 sub get_request_token {
+    my $self = shift;
+    my $res = $self->_get_request_token(@_);
+    unless ($res->is_success) {
+        return $self->error($res->status_line);
+    }
+    my $token = OAuth::Lite::Token->from_encoded($res->decoded_content||$res->content);
+    return $self->error(qq/oauth_callback_confirmed is not true/)
+        unless $token && $token->callback_confirmed;
+    $self->request_token($token);
+    $token;
+}
+
+sub _get_request_token {
     my ($self, %args) = @_;
     $args{url} ||= $self->request_token_url;
     my $request_token_url = delete $args{url}
@@ -424,15 +458,79 @@ sub get_request_token {
         url    => $request_token_url,
         params => {%args, oauth_callback => $callback},
     );
+    return $res;
+}
+
+=head2 obtain_access_token
+
+    my $res = $consumer->obtain_access_token(
+        url    => $access_token_url,
+        params => {
+            x_auth_username => "myname",
+            x_auth_password => "mypass",
+            x_auth_mode     => "client_auth",
+        },
+    );
+
+    my $access_token = $res->token;
+    say $acces_token->token;
+    say $acces_token->secret;
+    my $expires = $res->param('x_auth_expires');
+
+What is the difference between obtain_access_token and get_access_token?
+get_access_token requires token and verifier.
+obtain_access_token doesn't. these parameters are optional.
+You can pass extra parameters like above example.(see x_auth_XXX parameters)
+And get_access_token returns OAuth::Lite::Token object directly,
+obtain_access_token returns OAuth::Lite::Response object that includes
+not only Token object but also other response parameters.
+the extra parameters are used for some extensions.(Session extension, xAuth, etc.)
+
+Of cource, if you don't need to handle these extensions,
+You can continue to use get_access_token for backward compatibility.
+
+    my $token = $consumer->get_access_token(
+        url      => $access_token_url,
+        token    => $request_token,
+        verifier => $verification_code,
+    );
+
+    # above code's behavior is same as (but response objects are different)
+
+    my $res = $consumer->obtain_access_token(
+        url => $access_token_url,
+        token => $request_token,
+        params => {
+            oauth_verifier => $verification_code, 
+        },
+    );
+
+=cut
+
+sub obtain_access_token {
+    my ($self, %args) = @_;
+    $args{url} ||= $self->access_token_url;
+    my $access_token_url = $args{url}
+        or Carp::croak qq/get_access_token needs access_token_url./;
+    my $realm = $args{realm} || $self->{realm} || '';
+
+    my $token = defined $args{token} ? $args{token} : undef;
+    my $params = $args{params} || {};
+
+    my $res = $self->__request(
+        realm  => $realm,
+        url    => $access_token_url,
+        token  => $token,
+        params => $params,
+    );
     unless ($res->is_success) {
         return $self->error($res->status_line);
     }
-    my $token = OAuth::Lite::Token->from_encoded($res->decoded_content||$res->content);
-    return $self->error(qq/oauth_callback_confirmed is not true/)
-        unless $token && $token->callback_confirmed;
-    $self->request_token($token);
-    $token;
+    my $resp = OAuth::Lite::Response->from_encoded($res->decoded_content||$res->content);
+    $self->access_token($resp->token);
+    $resp;
 }
+
 
 =head2 get_access_token(%params)
 

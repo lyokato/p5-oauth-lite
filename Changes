@@ -1,5 +1,11 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.25 Fri Feb 19 11:39:00 2010
+    - added obtain_access_token, and obtain_reuqest_token methods to Consumer
+      class because get_access_token is not flexible.
+      of cource, you can continue to use get_access_token for backward compatibility
+      if you don't need to handle extensions, such like session-extension or xAuth.
+
 1.24  Tue Feb 9 10:57:00 2010
 
     - Improved problems matching, hash lookup is faster than linear search +
