@@ -4,6 +4,7 @@ examples/generate_rsa_keys.pl
 examples/spec.pl
 examples/termie.pl
 examples/twitter.pl
+examples/twitter_xauth.pl
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
@@ -15,13 +16,14 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 inc/Test/More.pm
 lib/OAuth/Lite.pm
-lib/OAuth/Lite/AuthMethod.pm
 lib/OAuth/Lite/Agent.pm
+lib/OAuth/Lite/AuthMethod.pm
 lib/OAuth/Lite/Consumer.pm
+lib/OAuth/Lite/Problems.pm
+lib/OAuth/Lite/Response.pm
 lib/OAuth/Lite/Server/mod_perl2.pm
 lib/OAuth/Lite/Server/Test/Echo.pm
 lib/OAuth/Lite/ServerUtil.pm
-lib/OAuth/Lite/Problems.pm
 lib/OAuth/Lite/SignatureMethod.pm
 lib/OAuth/Lite/SignatureMethod/HMAC_SHA1.pm
 lib/OAuth/Lite/SignatureMethod/PLAINTEXT.pm
