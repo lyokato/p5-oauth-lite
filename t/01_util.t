@@ -1,4 +1,4 @@
-use Test::More tests => 20;
+use Test::More tests => 22;
 
 use OAuth::Lite::Util;
 
@@ -93,3 +93,9 @@ my %hash = (
     z => ['p', 't'],
 );
 is(OAuth::Lite::Util::normalize_params(\%hash), 'a=1&a1=1&c=hi%20there&f=25&f=50&f=a&z=p&z=t');
+
+my $base4 = OAuth::Lite::Util::normalize_request_url('HTTP://EXAMPLE.com:80/resource?id=123');
+is($base4, 'http://example.com/resource');
+my $base5 = OAuth::Lite::Util::normalize_request_url('HTTP://EXAMPLE.com:80/Path?id=123');
+is($base5, 'http://example.com/Path');
+

@@ -82,6 +82,26 @@ This provides constants which used in OAuth Problem Reporting spec.
         $server->error(sprintf "oauth_problem=%s", $error);
     }
 
+=head1 CONSTANTS
+
+=head2 VERSION_REJECTED
+=head2 PARAMETER_ABSENT
+=head2 PARAMETER_REJECTED
+=head2 TIMESTAMP_REFUSED
+=head2 NONCE_USED
+=head2 SIGNATURE_METHOD_REJECTED
+=head2 SIGNATURE_INVALID
+=head2 CONSUMER_KEY_UNKNOWN
+=head2 CONSUMER_KEY_REJECTED
+=head2 CONSUMER_KEY_REFUSED
+=head2 TOKEN_USED
+=head2 TOKEN_EXPIRED
+=head2 TOKEN_REVOKED
+=head2 TOKEN_REJECTED
+=head2 ADDITIONAL_AUTHORIZATION_REQUIRED
+=head2 PERMISSION_UNKNOWN
+=head2 PERMISSION_DENIED
+=head2 USER_REFUSED
 
 =head1 SEE ALSO
 

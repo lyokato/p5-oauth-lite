@@ -1,5 +1,11 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.26 Tue Mar 09 16:08:00 2010
+    - bigfix: Util::normalize_request_url
+      OAuth Core 1.0a section 9.1.2 says that URL scheme and authority MUST be lowercase.
+
+      added document for OAuth::Lite::Problems for Pod::Coverage.
+
 1.25 Fri Feb 19 11:39:00 2010
     - added obtain_access_token, and obtain_reuqest_token methods to Consumer
       class because get_access_token is not flexible.
