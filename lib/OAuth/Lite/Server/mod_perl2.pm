@@ -65,7 +65,7 @@ See it.
     }
 
     sub get_access_token_secret {
-        my ($self, $token_string) = @_;
+        my ($self, $token_string, $consumer_key) = @_;
         my $token = MyDB::Scheme->resultset('AccessToken')->find($token_string);
         unless ($token
             && !$token->is_expired) {
@@ -220,7 +220,7 @@ valid, and returns token-secret value corresponds to the
 token value passed as argument.
 If the token is invalid, you should call 'error' method.
 
-=head2 get_access_token_secret($token_string)
+=head2 get_access_token_secret($token_string, $consumer_key)
 
 In this method, you should check if the access-token-string is
 valid, and returns token-secret value corresponds to the
@@ -696,7 +696,7 @@ sub __service {
         my $token_secret = '';
         if (exists $params->{oauth_token}) {
             my $token_value = $params->{oauth_token};
-            $token_secret = $self->get_access_token_secret($token_value);
+            $token_secret = $self->get_access_token_secret($token_value, $consumer_key);
             unless (defined $token_secret) {
                 return $self->errout(401, $self->errstr||TOKEN_REJECTED);
             }
@@ -826,7 +826,7 @@ sub get_request_token_secret {
 }
 
 sub get_access_token_secret {
-    my ($self, $token) = @_;
+    my ($self, $token, $consumer_key) = @_;
     my $secret;
     return $secret;
 }
