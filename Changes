@@ -1,5 +1,10 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.27 Fri Apr 09 14:10:00 2010
+    - security fix
+      now Server::mod_perl2::get_access_token_secret gets one more param , consumer_key.
+      so, you can check that the acess_token is published for the indicated consumer.
+
 1.26 Tue Mar 09 16:08:00 2010
     - bigfix: Util::normalize_request_url
       OAuth Core 1.0a section 9.1.2 says that URL scheme and authority MUST be lowercase.
