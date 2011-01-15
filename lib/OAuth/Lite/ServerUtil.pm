@@ -16,7 +16,7 @@ use Carp ();
 
 =head1 NAME
 
-OAth::Lite::ServerUtil - server side utility
+OAuth::Lite::ServerUtil - server side utility
 
 =head1 SYNOPSIS
 
