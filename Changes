@@ -1,6 +1,6 @@
 Revision history for Perl extension OAuth::Lite.
 
-1.27 Sun Jan 16 14:23:00 2010
+1.28 Sun Jan 16 14:23:00 2010
     - fixed typo
       Thanks to tokuhirom.
       https://github.com/tokuhirom/p5-oauth-lite/commit/8ff53996564ca70e3adb717b253e082955b9548e
