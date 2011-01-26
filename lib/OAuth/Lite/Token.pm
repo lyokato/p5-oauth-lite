@@ -116,7 +116,10 @@ Generate token from encoded line (that service provider provides as response of 
 
 sub from_encoded {
     my ($class, $encoded) = @_;
-    chomp $encoded;
+
+    $encoded =~ s/\r\n$//;
+    $encoded =~ s/\n$//;
+
     my $token = $class->new;
     for my $pair (split /&/, $encoded) {
         my ($key, $val) = split /=/, $pair;
