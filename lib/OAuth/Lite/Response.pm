@@ -62,7 +62,8 @@ Generate response from encoded line (that service provider provides as response 
 
 sub from_encoded {
     my ($class, $encoded) = @_;
-    chomp $encoded;
+    $encoded =~ s/\r\n$//;
+    $encoded =~ s/\n$//;
     my $res = $class->new;
     my $token = OAuth::Lite::Token->new;
     for my $pair (split /&/, $encoded) {

@@ -1,5 +1,8 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.30 Wed Feb 8 16:11:00 2010
+    - Now Response::from_encoded doesn't use chomp and trim both CRLF and LF
+
 1.29 Wed Jan 26 16:46:00 2010
     - Now Token::from_encoded doesn't use chomp and trim both CRLF and LF
 
