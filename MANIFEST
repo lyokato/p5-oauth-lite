@@ -37,6 +37,7 @@ README
 t/00_load.t
 t/01_util.t
 t/02_token.t
+t/02_response.t
 t/03_signature_method_hmac_sha1.t
 t/03_signature_method_plaintext.t
 t/03_signature_method_rsa_sha1.t
