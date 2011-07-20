@@ -701,7 +701,7 @@ sub gen_oauth_request {
     if ( $is_send_data_method ) {
         $headers->header('Content-Type', q{application/x-www-form-urlencoded})
             unless $headers->header('Content-Type');
-        $headers->header('Content-Length', bytes::length($content) );
+        $headers->header('Content-Length', bytes::length($content) || 0 );
     }
     my $req = HTTP::Request->new( $method, $url, $headers, $content );
     $req;
