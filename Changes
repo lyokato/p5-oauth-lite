@@ -1,12 +1,15 @@
 Revision history for Perl extension OAuth::Lite.
 
-1.30 Wed Feb 8 16:11:00 2010
+1.31 Wed Jul 20 14:43:00 2011
+    - merged pull-request from tokuhirom. https://github.com/lyokato/p5-oauth-lite/pull/3
+
+1.30 Wed Feb 8 16:11:00 2011
     - Now Response::from_encoded doesn't use chomp and trim both CRLF and LF
 
-1.29 Wed Jan 26 16:46:00 2010
+1.29 Wed Jan 26 16:46:00 2011
     - Now Token::from_encoded doesn't use chomp and trim both CRLF and LF
 
-1.28 Sun Jan 16 14:23:00 2010
+1.28 Sun Jan 16 14:23:00 2011
     - fixed typo
       Thanks to tokuhirom.
       https://github.com/tokuhirom/p5-oauth-lite/commit/8ff53996564ca70e3adb717b253e082955b9548e
