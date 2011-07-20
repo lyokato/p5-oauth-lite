@@ -47,5 +47,6 @@ t/06_authmethod.t
 t/07_signing_requests.t
 t/08_agent.t
 t/09_problems.t
+t/10_content_length.t
 t/99_pod.t
 t/99_pod_coverage.t
