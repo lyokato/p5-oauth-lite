@@ -69,7 +69,8 @@ constructor.
 You can pass custom agent, that is required to implement
 'request' and 'agent' methods corresponding to the same named methods of LWP::UserAgnet.
 
-    OAuth::Lite::Agent->new( ua => $custom_agent );
+    my $custom_agent = LWP::UserAgent->new(timeout => 10);
+    OAuth::Lite::Agent->new($custom_agent);
 
 =head2 agent
 
