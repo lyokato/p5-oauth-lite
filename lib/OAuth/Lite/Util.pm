@@ -161,16 +161,22 @@ according to the way OAuth Core spec defines.
 
 sub normalize_params {
     my $params = shift;
-    my @pairs = ();
-    for my $k (sort keys %$params) {
+    my %encoded_params = ();
+    for my $k (keys %$params) {
         if (!ref $params->{$k}) {
-            push @pairs, 
-                sprintf(q{%s=%s}, encode_param($k), encode_param($params->{$k}));
+            $encoded_params{encode_param($k)} = encode_param($params->{$k});
+        } elsif (ref $params->{$k} eq 'ARRAY') {
+            $encoded_params{encode_param($k)} = [ map { encode_param($_) } @{$params->{$k}} ];
         }
-        elsif (ref $params->{$k} eq 'ARRAY') {
-            for my $v (sort @{ $params->{$k} }) {
-                push @pairs, 
-                    sprintf(q{%s=%s}, encode_param($k), encode_param($v));
+    }
+    my @pairs = ();
+    for my $k (sort keys %encoded_params) {
+        if (!ref $encoded_params{$k}) {
+            push @pairs, sprintf(q{%s=%s}, $k, $encoded_params{$k});
+        }
+        elsif (ref $encoded_params{$k} eq 'ARRAY') {
+            for my $v (sort @{ $encoded_params{$k} }) {
+                push @pairs, sprintf(q{%s=%s}, $k, $v);
             }
         }
     }
