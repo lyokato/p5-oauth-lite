@@ -1,5 +1,6 @@
-use Test::More tests => 22;
+use Test::More tests => 24;
 
+use OAuth::Lite;
 use OAuth::Lite::Util;
 
 my $random1 = OAuth::Lite::Util::gen_random_key();
@@ -93,6 +94,25 @@ my %hash = (
     z => ['p', 't'],
 );
 is(OAuth::Lite::Util::normalize_params(\%hash), 'a=1&a1=1&c=hi%20there&f=25&f=50&f=a&z=p&z=t');
+
+# http://tools.ietf.org/html/rfc5849#section-3.4.1.3.2
+%hash = (
+    'b5'                     => '=%3D',
+    'a3'                     => 'a',
+    'c@'                     => '',
+    'a2'                     => 'r b',
+    'oauth_consumer_key'     => '9djdj82h48djs9d2',
+    'oauth_token'            => 'kkk9d7dh3k39sjv7',
+    'oauth_signature_method' => 'HMAC-SHA1',
+    'oauth_timestamp'        => 137131201,
+    'oauth_nonce'            => '7d8f3e4a',
+    'c2'                     => '',
+    'a3'                     => '2 q',
+);
+$OAuth::Lite::USE_DEPRECATED_NORMALIZER = 1;
+isnt(OAuth::Lite::Util::normalize_params(\%hash), 'a2=r%20b&a3=2%20q&b5=%3D%253D&c%40=&c2=&oauth_consumer_key=9djdj82h48djs9d2&oauth_nonce=7d8f3e4a&oauth_signature_method=HMAC-SHA1&oauth_timestamp=137131201&oauth_token=kkk9d7dh3k39sjv7');
+$OAuth::Lite::USE_DEPRECATED_NORMALIZER = 0;
+is(OAuth::Lite::Util::normalize_params(\%hash), 'a2=r%20b&a3=2%20q&b5=%3D%253D&c%40=&c2=&oauth_consumer_key=9djdj82h48djs9d2&oauth_nonce=7d8f3e4a&oauth_signature_method=HMAC-SHA1&oauth_timestamp=137131201&oauth_token=kkk9d7dh3k39sjv7');
 
 my $base4 = OAuth::Lite::Util::normalize_request_url('HTTP://EXAMPLE.com:80/resource?id=123');
 is($base4, 'http://example.com/resource');

@@ -1,5 +1,13 @@
 Revision history for Perl extension OAuth::Lite.
 
+1.32 Sun Jan 05 11:00:00 2014
+    - fixed invalid way to normalizing params.
+      But it breaks backward compatibility, so you can switch behaviour 
+      by $OAuth::Lite::USE_DEPRECATED_NORMALIZER.
+      Currently this value is set as 1 by default to keep backward compatibility.
+      https://github.com/lyokato/p5-oauth-lite/pull/5
+      Thanks to ninjinkun
+    
 1.31 Wed Jul 20 14:43:00 2011
     - merged pull-request from tokuhirom. https://github.com/lyokato/p5-oauth-lite/pull/3
 

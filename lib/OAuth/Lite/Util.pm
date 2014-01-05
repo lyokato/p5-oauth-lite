@@ -3,6 +3,7 @@ package OAuth::Lite::Util;
 use strict;
 use warnings;
 
+use OAuth::Lite;
 use URI;
 use URI::Escape;
 use Crypt::OpenSSL::Random;
@@ -53,6 +54,25 @@ OAuth::Lite::Util - utility for OAuth
 =head1 DESCRIPTION
 
 Utilty functions for OAuth are implemented here.
+
+=head1 PAY ATTENTION
+
+If you use OAuth 1.31 or older version, its has invalid way to normalize params.
+(when there are two or more same key and they contain ASCII and non ASCII value)
+
+But the many services have already supported deprecated version, 
+and the correct way breaks backward compatibility.
+So, from 1.32, supported both correct and deprecated method. 
+
+use $OAuth::Lite::USE_DEPRECATED_NORMALIZER to switch behaviour.
+Currently 1 is set by default to keep backward compatibility.
+
+    use OAuth::Lite::Util;
+    use OAuth::Lite;
+    $OAuth::Lite::USE_DEPRECATED_NORMALIZER = 0;
+    ...
+
+
 
 =head1 METHODS
 
@@ -160,6 +180,36 @@ according to the way OAuth Core spec defines.
 =cut
 
 sub normalize_params {
+    $OAuth::Lite::USE_DEPRECATED_NORMALIZER 
+        ? _normalize_params_deprecated(@_)
+        : _normalize_params(@_);
+}
+
+sub _normalize_params {
+    my $params = shift;
+    my %encoded_params = ();
+    for my $k (keys %$params) {
+        if (!ref $params->{$k}) {
+            $encoded_params{encode_param($k)} = encode_param($params->{$k});
+        } elsif (ref $params->{$k} eq 'ARRAY') {
+            $encoded_params{encode_param($k)} = [ map { encode_param($_) } @{$params->{$k}} ];
+        }
+    }
+    my @pairs = ();
+    for my $k (sort keys %encoded_params) {
+        if (!ref $encoded_params{$k}) {
+            push @pairs, sprintf(q{%s=%s}, $k, $encoded_params{$k});
+        }
+        elsif (ref $encoded_params{$k} eq 'ARRAY') {
+            for my $v (sort @{ $encoded_params{$k} }) {
+                push @pairs, sprintf(q{%s=%s}, $k, $v);
+            }
+        }
+    }
+    return join('&', @pairs);
+}
+
+sub _normalize_params_deprecated {
     my $params = shift;
     my @pairs = ();
     for my $k (sort keys %$params) {

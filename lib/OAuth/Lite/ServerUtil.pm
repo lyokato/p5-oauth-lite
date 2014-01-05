@@ -41,6 +41,25 @@ And see L<OAuth::Lite::Server::mod_perl2> source code.
 
 This module helps you to implement application that acts as OAuth Service Provider.
 
+=head1 PAY ATTENTION
+
+If you use OAuth 1.31 or older version, its has invalid way to normalize params.
+(when there are two or more same key and they contain ASCII and non ASCII value)
+
+But the many services have already supported deprecated version, 
+and the correct way breaks backward compatibility.
+So, from 1.32, supported both correct and deprecated method. 
+
+use $OAuth::Lite::USE_DEPRECATED_NORMALIZER to switch behaviour.
+Currently 1 is set by default to keep backward compatibility.
+
+    use OAuth::Lite::ServerUtil;
+    use OAuth::Lite;
+
+    $OAuth::Lite::USE_DEPRECATED_NORMALIZER = 0;
+    ...
+
+
 =head1 METHODS
 
 =head2 new
